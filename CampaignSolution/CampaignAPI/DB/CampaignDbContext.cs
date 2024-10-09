@@ -27,6 +27,9 @@ namespace CampaignAPI.DB
             modelBuilder.Entity<Agent>()
                 .Property(a => a.Password)
                 .IsRequired();
+
+            modelBuilder.Entity<Reward>()
+                .HasKey(_ => _.Id);
         }
 
 
