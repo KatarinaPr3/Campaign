@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
+using System.Security.Claims;
 
 namespace CampaignAPI.Controllers
 {
@@ -13,9 +14,15 @@ namespace CampaignAPI.Controllers
     {
         private readonly IEntityService<PurchaseDB> _entityService;
         private readonly IEntityService<ProductDB> _entityServiceProduct;
+        private readonly IEntityService<Reward> _rewardService;
+        private readonly IEntityService<Campaign> _campaignService;
+        private readonly ICampaignService _customCampaignService;
 
-        public PurchaseController(IEntityService<PurchaseDB> entityService, IEntityService<ProductDB> entityServiceProduct)
+        public PurchaseController(IEntityService<PurchaseDB> entityService, IEntityService<ProductDB> entityServiceProduct, IEntityService<Reward> rewardService, IEntityService<Campaign> campaignService, ICampaignService customCampaignService)
         {
+            _rewardService = rewardService;
+            _campaignService = campaignService;
+            _customCampaignService = customCampaignService;
             _entityService = entityService;
             _entityServiceProduct = entityServiceProduct;
         }
@@ -27,42 +34,57 @@ namespace CampaignAPI.Controllers
         [Authorize(Roles = nameof(Roles.User))]
         public async Task<ActionResult<PurchaseDB>> MakePurchase([FromBody] PurchaseAPI purchase)
         {
+            int loggedUserId = 0;
             if (purchase == null || purchase.Products == null || !purchase.Products.Any())
             {
                 return BadRequest(new { message = "Purchase data is required." });
             }
 
-            var allProductsFromDB = await _entityServiceProduct.GetAllAsync();
+            var nameIdentifierClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name);
 
-            var missingProducts = purchase.Products
-                .Where(p => !allProductsFromDB.Any(dbProduct => dbProduct.Id == p.Id))
-                .ToList();
-
-            if (missingProducts.Any())
+            if (nameIdentifierClaim != null && int.TryParse(nameIdentifierClaim.Value, out loggedUserId))
             {
-                return NotFound(new
+                var allProductsFromDB = await _entityServiceProduct.GetAllAsync();
+
+                var missingProducts = purchase.Products
+                    .Where(p => !allProductsFromDB.Any(dbProduct => dbProduct.Id == p.Id))
+                    .ToList();
+
+                if (missingProducts.Any())
                 {
-                    message = "You attempted to add products with IDs that are not recorded in the database.",
-                    missingProducts
-                });
+                    return NotFound(new
+                    {
+                        message = "You attempted to add products with IDs that are not recorded in the database.",
+                        missingProducts
+                    });
+                }
+
+                var products = await ProductsDbBFromProductsAPI(purchase.Products);
+                var discount = await GetDiscountForCustomerAsync(loggedUserId);
+
+                var newPurchase = new PurchaseDB
+                {
+                    CustomerId = loggedUserId,
+                    DateTime = DateTime.Now,
+                    PurchasedProducts = products,
+                    Discount = discount,
+                };
+
+                newPurchase.CalculateTotal();
+                await _entityService.AddAsync(newPurchase);
+                if (discount > 0)
+                {
+                    var rewards = await _rewardService.GetAllAsync();
+                    var userRewards = rewards.Where(_ => _.CustomerId == loggedUserId).ToList();
+                    foreach (Reward reward in userRewards) 
+                    {
+                        reward.Used = true;
+                        await _rewardService.UpdateAsync(reward);
+                    }
+                }
+                return Ok(newPurchase);
             }
-
-            var products = await ProductsDbBFromProductsAPI(purchase.Products);
-            var discount = 0; // TODO: GetDiscountForCustomerAsync(98);
-
-            var newPurchase = new PurchaseDB
-            {
-                CustomerId = 98,
-                DateTime = DateTime.Now,
-                PurchasedProducts = products,
-                Discount = discount,
-            };
-
-            newPurchase.CalculateTotal();
-            await _entityService.AddAsync(newPurchase);
-            // TODO: if discount > 0 use reward service to mark that user used reward .CustomerUseReward(id customer)
-
-            return Ok(newPurchase);
+            return BadRequest("Undefined purchase customer id");
         }
 
 
@@ -82,6 +104,19 @@ namespace CampaignAPI.Controllers
                 productList.Add(purchasedProduct);
             }
             return productList;
+        }
+
+        private async Task<double> GetDiscountForCustomerAsync(int customerId)
+        {
+            IEnumerable<Reward> rewards = await _rewardService.GetAllAsync();
+            bool customerHasReward = rewards.Where(_ => _.CustomerId == customerId && !_.Used).Any();
+            if (customerHasReward)
+            {
+                var allCampaigns = await _campaignService.GetAllAsync();
+                Campaign activeCampaign = _customCampaignService.GetFirstActiveCampaignAsync(allCampaigns.ToList());
+                return _customCampaignService.GetCampaignDiscount(activeCampaign);
+            }
+            return 0;
         }
     }
 }

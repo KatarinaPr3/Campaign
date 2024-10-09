@@ -69,7 +69,7 @@ namespace CampaignAPI.Controllers
         [Authorize]
         public async Task<ActionResult<Campaign>> GetCampaignById(int id)
         {
-            if (id <= 0) // Proverava da li je ID validan
+            if (id <= 0)
             {
                 return BadRequest("Invalid ID.");
             }
