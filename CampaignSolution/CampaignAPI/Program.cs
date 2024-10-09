@@ -21,6 +21,7 @@ builder.Services.AddDbContext<CampaignDbContext>(options =>
 builder.Services.AddSingleton<IPersonParser, PersonParser>();
 builder.Services.AddSingleton<ISoapService, SoapService>();
 builder.Services.AddSingleton<IAddressParser, AddressParser>();
+builder.Services.AddSingleton<ICampaignService, Campaign_Service>();
 
 builder.Services.AddScoped(typeof(IEntityService<>), typeof(EntityService<>));
 

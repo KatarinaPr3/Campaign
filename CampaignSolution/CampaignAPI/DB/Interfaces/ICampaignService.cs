@@ -5,7 +5,7 @@ namespace CampaignAPI.DB.Interfaces
 {
     public interface ICampaignService
     {
-        Task<Campaign> GetFirstActiveCampaignAsync();
-        Task<double> GetCampaignDiscount(int id);
+        Campaign GetFirstActiveCampaignAsync(IEnumerable<Campaign> campaigns);
+        double GetCampaignDiscount(Campaign campaign);
     }
 }

@@ -6,26 +6,16 @@ namespace CampaignAPI.DB.Service
 {
     public class Campaign_Service : ICampaignService
     {
-        private readonly EntityService<Campaign> _entityService;
-
-        public Campaign_Service(EntityService<Campaign> entityService)
+        public double GetCampaignDiscount(Campaign campaign)
         {
-            _entityService = entityService;
+            return campaign.Discount;
         }
 
-        public async Task<double> GetCampaignDiscount(int id)
+        public Campaign GetFirstActiveCampaignAsync(IEnumerable<Campaign> campaigns)
         {
-            Campaign campaign = await _entityService.GetByIdAsync(id);
-            return campaign == null ? 0 : campaign.Discount;
-        }
-
-        public async Task<Campaign> GetFirstActiveCampaignAsync()
-        {
-            var allCampaigns = await _entityService.GetAllAsync();
-            var activeCampaign = allCampaigns.FirstOrDefault(c => c.EndDate > DateTime.Now);
+            var activeCampaign = campaigns.FirstOrDefault(c => c.EndDate > DateTime.Now);
 
             return activeCampaign == null ? null : activeCampaign;
         }
-
     }
 }
