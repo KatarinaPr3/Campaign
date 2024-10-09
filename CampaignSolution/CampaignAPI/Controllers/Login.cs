@@ -1,5 +1,4 @@
-﻿using CampaignAPI.DB.Service;
-using CampaignService.Enums;
+﻿using CampaignService.Enums;
 using CampaignService.Models;
 using CampaignService.Stores;
 using Microsoft.AspNetCore.Authorization;
@@ -23,6 +22,8 @@ namespace CampaignAPI.Controllers
 
         [Authorize]
         [HttpGet("protected")]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public IActionResult ProtectedEndpoint()
         {
             var username = User.Identity.Name;
@@ -33,6 +34,9 @@ namespace CampaignAPI.Controllers
 
 
         [HttpPost("login")]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> LoginUser(string username, string password)
         {
             Tuple<Roles, int> result = await _customUserStore.ValidateUserAsync(username, password);

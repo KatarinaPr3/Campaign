@@ -5,9 +5,7 @@ using CampaignService.Enums;
 using CampaignService.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace CampaignAPI.Controllers
 {
@@ -26,7 +24,10 @@ namespace CampaignAPI.Controllers
         [HttpGet("get_all_rewards", Name = "GetAllRewards")]
         [Authorize(Roles = nameof(Roles.Agent))]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<Reward>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+
         public async Task<ActionResult<List<Reward>>> GetAllRewards()
         {
             IEnumerable<Reward> rewards = await _rewardService.GetAllAsync();
@@ -37,7 +38,10 @@ namespace CampaignAPI.Controllers
         [Authorize(Roles = nameof(Roles.Agent))]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<Reward>))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+
         public async Task<ActionResult<List<Reward>>> GetAllRewardsByAgent(int id)
         {
             IEnumerable<Reward> rewards = await _rewardService.GetAllAsync();
@@ -57,7 +61,9 @@ namespace CampaignAPI.Controllers
         [Authorize(Roles = nameof(Roles.Agent))]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<Reward>))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<ActionResult<List<Reward>>> GetAllRewardsByCustomer(int id)
         {
             try
@@ -84,7 +90,9 @@ namespace CampaignAPI.Controllers
         [Authorize(Roles = nameof(Roles.Agent))]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<Reward>))]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<ActionResult<List<Reward>>> GetAllUnusedRewards()
         {
             try
@@ -113,6 +121,7 @@ namespace CampaignAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Reward))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<Reward>> CreateReward([FromBody] Reward reward)
         {
@@ -171,6 +180,8 @@ namespace CampaignAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Reward))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<Reward>> GetRewardById(int id)
         {
             Reward r = await _rewardService.GetByIdAsync(id);
@@ -188,6 +199,8 @@ namespace CampaignAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<Reward>))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+
         public async Task<ActionResult<Reward>> GetRewardByAgentIdAndDate(int id, DateTime date)
         {
             IEnumerable<Reward> rewards = await _rewardService.GetAllAsync();

@@ -1,6 +1,5 @@
 ﻿using CampaignAPI.DB.Interfaces;
 using CampaignService.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace CampaignAPI.DB.Service
 {

@@ -1,5 +1,4 @@
 ﻿using CampaignService.Models;
-using System.Text.RegularExpressions;
 
 namespace CampaignService.Interfaces
 {

@@ -1,10 +1,8 @@
 ﻿using CampaignAPI.DB.Interfaces;
-using CampaignAPI.DB.Service;
 using CampaignService.Enums;
 using CampaignService.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Data;
 using System.Security.Claims;
 
@@ -30,6 +28,7 @@ namespace CampaignAPI.Controllers
         [HttpPost("add_purchase", Name = "MakePurchase")]
         [ProducesResponseType(typeof(PurchaseDB), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Authorize(Roles = nameof(Roles.User))]
         public async Task<ActionResult<PurchaseDB>> MakePurchase([FromBody] PurchaseAPI purchase)

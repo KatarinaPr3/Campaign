@@ -2,7 +2,6 @@
 using CampaignService.Enums;
 using CampaignService.Interfaces;
 using CampaignService.Models;
-using CampaignService.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

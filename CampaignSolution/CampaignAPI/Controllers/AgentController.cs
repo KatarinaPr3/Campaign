@@ -1,5 +1,4 @@
 ﻿using CampaignAPI.DB.Interfaces;
-using CampaignAPI.DB.Service;
 using CampaignService.Constants;
 using CampaignService.Enums;
 using CampaignService.Interfaces;
@@ -23,6 +22,8 @@ namespace CampaignAPI.Controllers
         [ProducesResponseType(typeof(List<Agent>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Authorize(Roles = nameof(Roles.Agent))]
         public async Task<ActionResult<List<Agent>>> GetAllAgents(bool fill_db = true)
         {
@@ -62,6 +63,7 @@ namespace CampaignAPI.Controllers
         [ProducesResponseType(typeof(List<Agent>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Authorize(Roles = nameof(Roles.Agent))]
         public async Task<ActionResult<Agent>> GetAgentById(int id)

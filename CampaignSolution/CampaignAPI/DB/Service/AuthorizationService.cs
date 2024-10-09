@@ -5,7 +5,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace CampaignAPI
+namespace CampaignAPI.DB.Service
 {
     public class AuthorizationService
     {

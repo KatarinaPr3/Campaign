@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-
-namespace CampaignService.Constants
+﻿namespace CampaignService.Constants
 {
     public class Settings
     {

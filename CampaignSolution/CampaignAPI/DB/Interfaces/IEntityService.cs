@@ -1,7 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Query;
-using System.Linq.Expressions;
-
-namespace CampaignAPI.DB.Interfaces
+﻿namespace CampaignAPI.DB.Interfaces
 {
     public interface IEntityService<T>
     {

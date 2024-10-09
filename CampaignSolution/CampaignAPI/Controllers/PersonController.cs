@@ -1,13 +1,8 @@
 ﻿using CampaignService.Models;
-using CampaignService.Services;
 using Microsoft.AspNetCore.Mvc;
 using CampaignService.Interfaces;
 using CampaignService.Constants;
-using System.Diagnostics.Metrics;
-using System;
-using System.Net;
 using Microsoft.AspNetCore.Authorization;
-using System.Data;
 using CampaignService.Enums;
 
 namespace CampaignAPI.Controllers
@@ -24,6 +19,8 @@ namespace CampaignAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [Authorize(Roles = nameof(Roles.Agent))]
         public async Task<ActionResult<Customer>> GetCustomer(int id)
         {
@@ -46,6 +43,7 @@ namespace CampaignAPI.Controllers
         [HttpGet("get_people", Name = "GetPeople")]
         [ProducesResponseType(typeof(List<Person>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [Authorize(Roles = nameof(Roles.Agent))]
