@@ -1,4 +1,5 @@
-﻿using CampaignService.Enums;
+﻿using CampaignAPI.DB.Service;
+using CampaignService.Enums;
 using CampaignService.Models;
 using CampaignService.Stores;
 using Microsoft.AspNetCore.Authorization;
