@@ -11,5 +11,6 @@ namespace CampaignService.Interfaces
         Task<List<Employee>> GetAllEmployeesRoleAgent();
 
         Task<List<Agent>> CreateAgentsFromEmployees();
+        Task<List<Person>> GetAllCustomers();
     }
 }

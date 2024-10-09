@@ -1,8 +1,10 @@
 ﻿using CampaignAPI.DB.Interfaces;
 using CampaignAPI.DB.Service;
 using CampaignService.Constants;
+using CampaignService.Enums;
 using CampaignService.Interfaces;
 using CampaignService.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CampaignAPI.Controllers
@@ -18,40 +20,63 @@ namespace CampaignAPI.Controllers
         }
 
         [HttpGet("get_all_agents", Name = "GetAllAgents")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(List<Agent>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [Authorize(Roles = nameof(Roles.Agent))]
         public async Task<ActionResult<List<Agent>>> GetAllAgents(bool fill_db = true)
         {
             try
             {
                 List<Agent> agents = await _soapService.CreateAgentsFromEmployees();
-                if (agents.Any())
+
+                if (!agents.Any())
                 {
-                    // Should feel db with agent data 
-                    if (fill_db)
+                    return StatusCode(StatusCodes.Status500InternalServerError, "No agents found. Please try again later.");
+                }
+
+                if (fill_db)
+                {
+                    foreach (var item in agents)
                     {
-                        foreach (var item in agents)
-                        {
-                            await _entityService.AddAsync(item);
-                        }
+                        await _entityService.AddAsync(item);
                     }
                 }
+
                 if (fill_db)
                 {
                     var agentsDb = await _entityService.GetAllAsync();
-                    agents = agents.ToList();
+                    agents = agentsDb.ToList();
                 }
-                return agents.Any() ? StatusCode(StatusCodes.Status200OK, agents) : StatusCode((int)StatusCodes.Status500InternalServerError, "We're experiencing technical difficulties. Please try again later or contact support if the issue persists.");
+
+                return Ok(agents);
             }
             catch (Exception ex)
             {
-
-                Console.WriteLine($"Error {ex}");
+                Console.WriteLine($"Error: {ex}");
+                return StatusCode(StatusCodes.Status500InternalServerError, Settings.MESSAGE_STATUS_INTERNAL_SERVER_ERROR);
             }
-            return NoContent();
+        }
 
-            
+        [HttpGet("get_agent/{id:int}", Name = "GetAgentById")]
+        [ProducesResponseType(typeof(List<Agent>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [Authorize(Roles = nameof(Roles.Agent))]
+        public async Task<ActionResult<Agent>> GetAgentById(int id)
+        {
+            try
+            {
+                Agent agent = await _entityService.GetByIdAsync(id);
+
+                return agent != null ? Ok(agent) : BadRequest($"The requested ID is out of the allowed range.Please enter an ID between {Settings.EMPLOYEE_ID_MIN} and {Settings.EMPLOYEE_ID_MAX}.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex}");
+                return StatusCode(StatusCodes.Status500InternalServerError, Settings.MESSAGE_STATUS_INTERNAL_SERVER_ERROR);
+            }
         }
 
     }

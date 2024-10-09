@@ -1,5 +1,6 @@
 ﻿using CampaignAPI.DB.Interfaces;
 using CampaignAPI.DB.Service;
+using CampaignService.Enums;
 using CampaignService.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,10 +21,17 @@ namespace CampaignAPI.Controllers
         }
 
         [HttpPost("add_purchase", Name = "MakePurchase")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PurchaseDB))]
+        [ProducesResponseType(typeof(PurchaseDB), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [Authorize(Roles = nameof(Roles.User))]
         public async Task<ActionResult<PurchaseDB>> MakePurchase([FromBody] PurchaseAPI purchase)
         {
+            if (purchase == null || purchase.Products == null || !purchase.Products.Any())
+            {
+                return BadRequest(new { message = "Purchase data is required." });
+            }
+
             var allProductsFromDB = await _entityServiceProduct.GetAllAsync();
 
             var missingProducts = purchase.Products
@@ -32,11 +40,15 @@ namespace CampaignAPI.Controllers
 
             if (missingProducts.Any())
             {
-                return NotFound(new { message = "You attempted to add products with IDs that are not recorded in the database.", missingProducts });
+                return NotFound(new
+                {
+                    message = "You attempted to add products with IDs that are not recorded in the database.",
+                    missingProducts
+                });
             }
 
             var products = await ProductsDbBFromProductsAPI(purchase.Products);
-            var discount = 0; // TODO  GetDiscountForCustomerAsync(98);
+            var discount = 0; // TODO: GetDiscountForCustomerAsync(98);
 
             var newPurchase = new PurchaseDB
             {
@@ -48,10 +60,11 @@ namespace CampaignAPI.Controllers
 
             newPurchase.CalculateTotal();
             await _entityService.AddAsync(newPurchase);
-            // TODO if discount > 0 use reward service to mark that user used reward .CustomerUseReward(id customer)
+            // TODO: if discount > 0 use reward service to mark that user used reward .CustomerUseReward(id customer)
 
             return Ok(newPurchase);
         }
+
 
         private async Task<List<PurchasedProduct>> ProductsDbBFromProductsAPI(IEnumerable<ProductAPI> productAPIs)
         {

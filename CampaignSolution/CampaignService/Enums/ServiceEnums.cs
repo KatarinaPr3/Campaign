@@ -238,5 +238,13 @@ namespace CampaignService.Enums
         Free = 1,
         BonusForNextPurchase = 2
     }
+    public enum Roles
+    {
+        User,
+        Agent,
+        Director,
+        NoRole,
+
+    }
 
 }

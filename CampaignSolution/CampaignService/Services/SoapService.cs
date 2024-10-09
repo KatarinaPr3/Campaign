@@ -1,5 +1,9 @@
-﻿using CampaignService.Interfaces;
+﻿using CampaignService.Constants;
+using CampaignService.Helpers;
+using CampaignService.Interfaces;
 using CampaignService.Models;
+using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace CampaignService.Services
@@ -14,14 +18,13 @@ namespace CampaignService.Services
             _personParser = personParser;
 
         }
-
         public async Task<List<Agent>> CreateAgentsFromEmployees()
         {
             List<Employee> employees = await GetAllEmployeesRoleAgent();
             List<Agent> agents = new();
             foreach (Employee employee in employees)
             {
-                agents.Add(GenerateUsernamePassword(employee));
+                agents.Add(UsernameHelper.GenerateAgentWithUsernamePassword(employee));
             }
             return agents;
         }
@@ -93,17 +96,20 @@ namespace CampaignService.Services
             return employees;
         }
 
-        private Agent GenerateUsernamePassword(Employee employee)
+        public async Task<List<Person>> GetAllCustomers()
         {
-            string[] parts = Regex.Split(employee.Name.ToLower().Trim(), @"[,\s]+");
-            string result = string.Join("_", parts);
-            return new Agent
+            List<Person> customers = new();
+            for (int i = Settings.CUSTOMER_ID_MIN; i < Settings.CUSTOMER_ID_MAX; i++)
             {
-                ID = employee.ID,
-                Username = $"{result}_{employee.ID}",
-                Password = Constants.Settings.AGENT_PASSWORD
-            };
+                var customer = await FindPersonById<Customer>(i);
+                customers.Add(customer);
+
+            }
+            return customers.Any() ? customers : null;
+
         }
+
+
     }
 
 }

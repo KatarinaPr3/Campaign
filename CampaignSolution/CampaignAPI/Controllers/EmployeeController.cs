@@ -1,7 +1,9 @@
 ﻿using CampaignService.Constants;
+using CampaignService.Enums;
 using CampaignService.Interfaces;
 using CampaignService.Models;
 using CampaignService.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CampaignAPI.Controllers
@@ -16,20 +18,28 @@ namespace CampaignAPI.Controllers
         }
 
         [HttpGet("get_employee/{id:int}", Name = "GetEmployeeById")]
+        [ProducesResponseType(typeof(Employee), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [Authorize(Roles = nameof(Roles.Agent))]
         public async Task<ActionResult<Employee>> GetEmployeeById(int id)
         {
-            if (id >= Settings.EMPLOYEE_ID_MIN && id <= Settings.EMPLOYEE_ID_MAX)
+            if (id < Settings.EMPLOYEE_ID_MIN || id > Settings.EMPLOYEE_ID_MAX)
             {
-                var employee = await _soapService.FindPersonById<Employee>(id);
-
-                return employee != null ? StatusCode(StatusCodes.Status200OK, employee) : StatusCode(StatusCodes.Status502BadGateway, "We're experiencing technical difficulties. Please try again later or contact support if the issue persists.");
-            }
-            else
-            {
-                return StatusCode(StatusCodes.Status400BadRequest, $"The requested ID is out of the allowed range.Please enter an ID between {Settings.EMPLOYEE_ID_MIN} and {Settings.EMPLOYEE_ID_MAX}.");
+                return BadRequest($"The requested ID is out of the allowed range. Please enter an ID between {Settings.EMPLOYEE_ID_MIN} and {Settings.EMPLOYEE_ID_MAX}.");
             }
 
-            
+            var employee = await _soapService.FindPersonById<Employee>(id);
+
+            if (employee == null)
+            {
+                return NotFound($"Employee with ID {id} not found.");
+            }
+
+            return Ok(employee);
         }
+
     }
 }
