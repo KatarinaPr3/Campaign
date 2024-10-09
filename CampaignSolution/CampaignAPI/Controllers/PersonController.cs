@@ -38,24 +38,23 @@ namespace CampaignAPI.Controllers
            
         }
 
-        [HttpGet("get_all_customers", Name = "GetAllCustomers")]
+        [HttpGet("get_people", Name = "GetPeople")]
         [ProducesResponseType(typeof(List<Person>), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<List<Person>>> GetAllCustomers()
+        public async Task<ActionResult<List<Person>>> GetPeople()
         {
             try
             {
-                List<Person> customers = await _soapService.GetAllCustomers();
+                List<Person> people = await _soapService.GetPeople();
 
-                if (customers == null || !customers.Any())
+                if (people == null || !people.Any())
                 {
-                    return NotFound();
+                    return StatusCode(StatusCodes.Status404NotFound, "There are no available data for people.");
                 }
+                return StatusCode(StatusCodes.Status200OK, people);
 
-                return Ok(customers);
             }
             catch (Exception ex)
             {

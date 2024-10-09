@@ -1,5 +1,6 @@
 ﻿using CampaignService.Interfaces;
 using CampaignService.Models;
+using System.Text.RegularExpressions;
 
 namespace CampaignService.Services
 {
@@ -12,6 +13,17 @@ namespace CampaignService.Services
         {
             _personParser = personParser;
 
+        }
+
+        public async Task<List<Agent>> CreateAgentsFromEmployees()
+        {
+            List<Employee> employees = await GetAllEmployeesRoleAgent();
+            List<Agent> agents = new();
+            foreach (Employee employee in employees)
+            {
+                agents.Add(GenerateUsernamePassword(employee));
+            }
+            return agents;
         }
 
         public async Task<T> FindPersonById<T>(int id) where T : Person, new()
@@ -41,9 +53,9 @@ namespace CampaignService.Services
             }
         }
 
-        public async Task<List<Person>> GetAllCustomers()
+        public async Task<List<Person>> GetPeople()
         {
-            List<Person> customers = new();
+            List<Person> people = new();
 
             for (char letter = 'A'; letter <= 'Z'; letter++)
             {
@@ -57,12 +69,40 @@ namespace CampaignService.Services
                     var parsed_customers = _personParser.ParseCustomerFromResponseForList(result);
                     foreach (var item in parsed_customers)
                     {
-                        customers.Add(item);
+                        people.Add(item);
                     }
                 }
             }
 
-            return customers;
+            return people;
+        }
+
+        public async Task<List<Employee>> GetAllEmployeesRoleAgent()
+        {
+            List<Employee> employees = new();
+            for (int i = Constants.Settings.EMPLOYEE_ID_MIN; i <= Constants.Settings.EMPLOYEE_ID_MAX; i++)
+            {
+                var employee = await FindPersonById<Employee>(i);
+
+                if (employee != null)
+                {
+                    if (!Constants.XmlConstants.NON_AGENT_JOB_TITLES.Contains(employee.Title)) employees.Add(employee);
+
+                }
+            }
+            return employees;
+        }
+
+        private Agent GenerateUsernamePassword(Employee employee)
+        {
+            string[] parts = Regex.Split(employee.Name.ToLower().Trim(), @"[,\s]+");
+            string result = string.Join("_", parts);
+            return new Agent
+            {
+                ID = employee.ID,
+                Username = $"{result}_{employee.ID}",
+                Password = Constants.Settings.AGENT_PASSWORD
+            };
         }
     }
 
