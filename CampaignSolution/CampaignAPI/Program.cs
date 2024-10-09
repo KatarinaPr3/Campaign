@@ -1,4 +1,3 @@
-using CampaignAPI;
 using CampaignAPI.DB;
 using CampaignAPI.DB.Interfaces;
 using CampaignAPI.DB.Service;
