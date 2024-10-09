@@ -30,6 +30,18 @@ namespace CampaignAPI.DB
 
             modelBuilder.Entity<Reward>()
                 .HasKey(_ => _.Id);
+
+            modelBuilder.Entity<Campaign>().HasData(
+                new Campaign
+                {
+                    Id = 1,
+                    CampaignName = "Big Discount Campaign",
+                    StartDate = DateTime.Today,
+                    EndDate = new DateTime(2024, 12, 31, 23, 59, 59),
+                    Discount = 20,
+                    CampaignType = CampaignService.Enums.CampaignType.Discount
+                }
+            );
         }
 
 

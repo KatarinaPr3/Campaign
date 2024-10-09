@@ -18,11 +18,11 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<CampaignDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddScoped(typeof(IEntityService<>), typeof(EntityService<>));
 builder.Services.AddSingleton<IPersonParser, PersonParser>();
 builder.Services.AddSingleton<ISoapService, SoapService>();
 builder.Services.AddSingleton<IAddressParser, AddressParser>();
 
+builder.Services.AddScoped(typeof(IEntityService<>), typeof(EntityService<>));
 
 var app = builder.Build();
 

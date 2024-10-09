@@ -232,4 +232,11 @@ namespace CampaignService.Enums
         LaboratoryDeveloper
     }
 
+    public enum CampaignType
+    {
+        Discount = 0,
+        Free = 1,
+        BonusForNextPurchase = 2
+    }
+
 }
