@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CampaignService.Models
 {
-    public class Product
+    public class ProductAPI
     {
         public int Id { get; set; }
     }

@@ -9,6 +9,11 @@ namespace CampaignAPI.DB
     public class CampaignDbContext : DbContext
     {
         public DbSet<Agent> Agents { get; set; }
+        public DbSet<PurchaseDB> PurchaseDB { get; set; }
+        public DbSet<ProductDB> Products { get; set; }
+        public DbSet<PurchasedProduct> PurchasedProducts { get; set; }
+
+
         public CampaignDbContext(DbContextOptions<CampaignDbContext> options) : base(options)
         {
 
@@ -48,45 +53,30 @@ namespace CampaignAPI.DB
                 .HasKey(_ => _.Id);
 
             modelBuilder.Entity<ProductDB>().HasData(
-                new ProductDB
-                {
-                    Id = 1,
-                    Name = "Mobile phone Samsung S24",
-                    Price = 1500
-
-                },
-                new ProductDB
-                {
-                    Id = 2,
-                    Name = "Mobile phone Samsung S23",
-                    Price = 1000
-
-                },
-                new ProductDB
-                {
-                    Id = 3,
-                    Name = "Laptop Acer Nitro",
-                    Price = 2000
-
-                },
-                new ProductDB
-                {
-                    Id = 4,
-                    Name = "Mobile phone Samsung S22",
-                    Price = 500
-
-                },
-                new ProductDB
-                {
-                    Id = 5,
-                    Name = "Sim Card",
-                    Price = 5
-
-                }
+                new ProductDB { Id = 1, Name = "Mobile phone Samsung S24", Price = 1500 },
+                new ProductDB { Id = 2, Name = "Mobile phone Samsung S23", Price = 1000 },
+                new ProductDB { Id = 3, Name = "Laptop Acer Nitro", Price = 2000 },
+                new ProductDB { Id = 4, Name = "Mobile phone Samsung S22", Price = 500 },
+                new ProductDB { Id = 5, Name = "Sim Card", Price = 5 }
             );
 
-            modelBuilder.Entity<Purchase>()
-                .HasKey(_ => _.Id);
+            modelBuilder.Entity<PurchaseDB>()
+                .HasKey(p => p.Id);
+
+            modelBuilder.Entity<PurchasedProduct>()
+                .HasKey(pp => pp.PurchasedProductId);
+
+            modelBuilder.Entity<PurchasedProduct>()
+                .HasOne(pp => pp.Product)
+                .WithMany(p => p.PurchasedProducts)
+                .HasForeignKey(pp => pp.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<PurchasedProduct>()
+                .HasOne(pp => pp.PurchaseDB)
+                .WithMany(p => p.PurchasedProducts)
+                .HasForeignKey(pp => pp.PurchaseDBId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

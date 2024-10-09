@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CampaignAPI.Migrations
 {
     [DbContext(typeof(CampaignDbContext))]
-    [Migration("20241009155649_AddingProductMigration")]
-    partial class AddingProductMigration
+    [Migration("20241009175754_AddingPurchaseMigration2")]
+    partial class AddingPurchaseMigration2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -133,6 +133,57 @@ namespace CampaignAPI.Migrations
                         });
                 });
 
+            modelBuilder.Entity("CampaignService.Models.PurchaseDB", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("DateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<double>("Discount")
+                        .HasColumnType("float");
+
+                    b.Property<decimal>("Total")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PurchaseDB");
+                });
+
+            modelBuilder.Entity("CampaignService.Models.PurchasedProduct", b =>
+                {
+                    b.Property<int>("PurchasedProductId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PurchasedProductId"));
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PurchaseDBId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("PurchasedProductId");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("PurchaseDBId");
+
+                    b.ToTable("PurchasedProducts");
+                });
+
             modelBuilder.Entity("CampaignService.Models.Reward", b =>
                 {
                     b.Property<int>("Id")
@@ -159,6 +210,35 @@ namespace CampaignAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Reward");
+                });
+
+            modelBuilder.Entity("CampaignService.Models.PurchasedProduct", b =>
+                {
+                    b.HasOne("CampaignService.Models.ProductDB", "Product")
+                        .WithMany("PurchasedProducts")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CampaignService.Models.PurchaseDB", "PurchaseDB")
+                        .WithMany("PurchasedProducts")
+                        .HasForeignKey("PurchaseDBId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("PurchaseDB");
+                });
+
+            modelBuilder.Entity("CampaignService.Models.ProductDB", b =>
+                {
+                    b.Navigation("PurchasedProducts");
+                });
+
+            modelBuilder.Entity("CampaignService.Models.PurchaseDB", b =>
+                {
+                    b.Navigation("PurchasedProducts");
                 });
 #pragma warning restore 612, 618
         }
