@@ -4,6 +4,7 @@ using CampaignAPI.DB;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CampaignAPI.Migrations
 {
     [DbContext(typeof(CampaignDbContext))]
-    partial class CampaignDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241009160138_AddingPurchaseMigration")]
+    partial class AddingPurchaseMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

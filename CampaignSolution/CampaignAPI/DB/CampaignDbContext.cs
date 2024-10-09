@@ -84,6 +84,9 @@ namespace CampaignAPI.DB
 
                 }
             );
+
+            modelBuilder.Entity<Purchase>()
+                .HasKey(_ => _.Id);
         }
     }
 }
