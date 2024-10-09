@@ -1,6 +1,10 @@
+using CampaignAPI.DB;
+using CampaignAPI.DB.Interfaces;
+using CampaignAPI.DB.Service;
 using CampaignService.Interfaces;
 using CampaignService.Services;
 using CampaignService.XmlResponseParsing;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +15,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddDbContext<CampaignDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped(typeof(IEntityService<>), typeof(EntityService<>));
 builder.Services.AddSingleton<IPersonParser, PersonParser>();
 builder.Services.AddSingleton<ISoapService, SoapService>();
 builder.Services.AddSingleton<IAddressParser, AddressParser>();
